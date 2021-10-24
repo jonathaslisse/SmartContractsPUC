@@ -21,6 +21,7 @@ contract Emprestimo {
     uint public valorMulta;
     uint public saldoEmAberto;
     
+   
     constructor (
         uint _valorEmprestimo,
         uint _qtdParcelas
@@ -61,5 +62,9 @@ contract Emprestimo {
     
     }
     
+    function prazoTotalParaPagamento () public view returns (uint, string memory) {
+        uint prazoTotalPagamento = qtdParcelas;
+        return(prazoTotalPagamento, "Prazo Maximo para Pagamento em meses");
+    }
     
 }
