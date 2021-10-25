@@ -28,10 +28,12 @@ contract CompraEvenda {
         uint _valorEntrada,
         uint _qtdParcelas,
         string memory _matricula,
-        string memory _cartorio
-        
+        string memory _cartorio,
+        address _vendedor
         ) 
+        
         {
+        vendedor = _vendedor;
         valorTotal = _valorTotal;
         valorEntrada = _valorEntrada;
         qtdParcelas = _qtdParcelas;
@@ -45,12 +47,18 @@ contract CompraEvenda {
     
     
     function pagarEntrada(uint _valorPagamento) public returns (uint, string memory){
+        require (_valorPagamento == valorEntrada, "valor entrada incorreto");
+        require(valorEmAberto == valorTotal, "valor da entrada ja paga");
+        comprador = msg.sender;
         valorEntrada = _valorPagamento;
         valorEmAberto = valorTotal - _valorPagamento;
         return(valorEmAberto, "Valor em Aberto");
     }
     
     function pagarParcela(uint _valorParcela) public returns (uint, string memory) {
+        require(_valorParcela == valorParcela, "valor da parcela incorreto");
+        require(valorEmAberto <= valorTotal-valorEntrada, "Valor da entrada nao foi paga");
+        require(comprador == msg.sender, "Obrigado, mas somente o comprador pode realizar o pagamento");
         valorEmAberto = valorEmAberto - _valorParcela;
         return(valorEmAberto, "valor em Aberto");
         
