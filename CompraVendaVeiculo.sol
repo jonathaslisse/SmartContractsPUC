@@ -26,6 +26,7 @@ contract CompraVendaVeiculos {
     uint public jurosMora;
     
     uint public saldoAberto;
+    uint public dataVencimento;
     
     
     constructor(
@@ -80,14 +81,23 @@ contract CompraVendaVeiculos {
         
     }   
     
-    function pagarEntrada (uint _valorPagamento) public returns (uint, string memory) {
-        valorEntrada = _valorPagamento;
-        saldoAberto = valorTotal - _valorPagamento;
+    function pagarEntrada () public payable returns (uint, string memory) {
+        require(msg.value == valorEntrada, "valor entrada incorreto");
+        require(saldoAberto == valorTotal, "valor da entrada ja paga");
+        comprador = msg.sender;
+        saldoAberto = valorTotal - msg.value;
+        payable(vendedor).transfer(msg.value);
+        dataVencimento = block.timestamp + 31 * 86400;
         return (saldoAberto, "Saldo em Aberto");
         
     }
     
-    function pagarParcela (uint _valorParcela) public returns (uint, string memory) {
+    function pagarParcela (uint _valorParcela) public payable returns (uint, string memory) {
+        require(_valorParcela == valorParcela, "valor da parcela incorreto");
+        require(saldoAberto <= valorTotal - entrada, "valor da entrada nao foi paga");
+        require(comprador == msg.sender, "Pagamento nao efetuado. Somente comprador pode realizar o pagamento");
+        require(block.timestamp <= dataVencimento, "parcela vencida");
+        dataVencimento = dataVencimento + 31 *86400;
         saldoAberto = saldoAberto - _valorParcela;
         return(saldoAberto, "Saldo em Aberto");
         
@@ -95,5 +105,3 @@ contract CompraVendaVeiculos {
     }
     
 }
-
-
